@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- Link to stylesheet -->
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" type="text/css">
+        <link rel="stylesheet" href="{% static 'css/styles.css' %}" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs"></script>
+        {% block title %}
+        {% endblock title %}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+    <div class="body-container">
+        <div class="content">
+            
+            <div class="crest">
+                <img src="{% static 'media/crest.png' %}">
+            </div>
+
+            {% block content %}
+            {% endblock content %}
+        
+        </div>
+    </div>
+
+    </body>
+
+
+    <footer class="footer-container whitespace">
+        <span class="footer-left">
+            <span><small>&copy; 2024 paull all rights reserved.</span></small><br>
+            </small>
+        </span>
+        </span>
+        <span class="footer-right"><small>
+            <span>
+                <a href="https://github.com/paull28" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+            </span>
+        </span></small>
+    </footer>
+
+    <script>
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            var expires = "";
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+    
+        // Function to get a cookie
+        function getCookie(name) {
+            var nameEQ = name + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i].trim();
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+    
+        // Function to erase a cookie
+        function eraseCookie(name) {
+            document.cookie = name + '=; Max-Age=-99999999;';
+        }
+    
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelectorAll('.activity-container').forEach(function (element) {
+                element.classList.toggle('dark-mode');
+            });
+    
+            // Toggle between moon and sun icons
+            let icon = document.getElementById('mode-toggle-icon');
+            if (document.body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                setCookie('darkmode', 'true', 7);
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                setCookie('darkmode', 'false', 7);
+            }
+        }
+    
+        // Apply dark mode on page load if cookie is set to true
+        window.addEventListener('load', function () {
+            var darkmode = getCookie('darkmode');
+            if (darkmode === 'true') {
+                document.body.classList.add('dark-mode');
+                document.querySelectorAll('.activity-container').forEach(function (element) {
+                    element.classList.add('dark-mode');
+                });
+                let icon = document.getElementById('mode-toggle-icon');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+    
+        // Function to filter the main callsign list
+        function filterMainCallsigns() {
+            let input = document.getElementById('callsign-search');
+            let filter = input.value.toLowerCase();
+            let containers = document.querySelectorAll('.activity-container');
+    
+            containers.forEach(container => {
+                let target = container.querySelector('.target').textContent.toLowerCase();
+                container.style.display = target.includes(filter) ? "" : "none";
+            });
+        }
+    
+        // Function to filter overlaps within each callsign container
+        function filterOverlaps(inputElement) {
+            let filter = inputElement.value.toLowerCase();
+            let activityContainer = inputElement.closest('.activity-container');
+            let items = activityContainer.querySelectorAll('.overlap-list li');
+    
+            items.forEach(item => {
+                let text = item.textContent.toLowerCase();
+                item.style.display = text.includes(filter) ? "" : "none";
+            });
+        }
+    
+        // Attach event listeners after page loads
+        window.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('mode-toggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('callsign-search').addEventListener('keyup', filterMainCallsigns);
+    
+            document.querySelectorAll('.overlap-search').forEach(searchInput => {
+                searchInput.addEventListener('keyup', function () {
+                    filterOverlaps(this);
+                });
+            });
+        });
+        
+    </script>
+    
+</html>

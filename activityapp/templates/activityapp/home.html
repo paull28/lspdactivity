@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}
+<title>Activity Overlaps</title>
+{% endblock title%}
+
+{% block content %}
+<div class="container">
+</div>
+
+{% if data and callsigns %}
+
+<div class="container">
+    <div class="search-container">
+        <input type="text" id="search-bar" placeholder="Search callsign..." />
+        <i id="mode-toggle" class="fa-regular fa-moon"></i>
+        <i id="refresh" class="fa-solid fa-arrows-rotate" alt="Refresh data"></i>
+    </div>
+
+    {% for d, overlaps in data.items %}
+    <div class="activity-container">
+        <div class="target-container">
+            <div class="target">{{ callsigns|get_item:d }}</div>
+        </div>
+        
+        <ul class="overlap-list" style="display: none;">
+            <div class="overlap-search-container">
+                <input type="text" class="overlap-search" placeholder="Search {{ d }}'s shared hours..." onkeyup="filterOverlaps(this)">
+            </div>
+            
+            <li>{{ d }} has the following shared hours:</li>
+            {% for overlap, time in overlaps.items %}
+            <li>{{ callsigns|get_item:overlap }} - {{ time }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchBar = document.getElementById("search-bar");
+        const containers = document.querySelectorAll(".activity-container");
+        
+        searchBar.addEventListener("keyup", function() {
+            let filter = searchBar.value.toLowerCase();
+
+            containers.forEach(container => {
+                let callsign = container.querySelector(".target").textContent.toLowerCase();
+
+                if (callsign.includes(filter)) {
+                    container.style.display = "block";
+                } else {
+                    container.style.display = "none";
+                }
+            });
+        });
+
+        const targetContainers = document.querySelectorAll(".target-container");
+
+        // Toggle overlap list on click
+        targetContainers.forEach(container => {
+            container.addEventListener("click", function() {
+                const overlapList = this.nextElementSibling;
+                if (overlapList.style.display === "none" || overlapList.style.display === "") {
+                    overlapList.style.display = "block";
+                } else {
+                    overlapList.style.display = "none";
+                }
+                this.classList.toggle("active");
+            });
+        });
+
+        document.getElementById("refresh").onclick = function () {
+            location.href = "/refresh";
+        };
+    });
+</script>
+
+{% else %}
+
+<div class="container">
+    Error fetching data.
+</div>
+
+{% endif %}
+
+{% endblock content %}
